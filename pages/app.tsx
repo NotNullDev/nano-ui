@@ -1,35 +1,33 @@
-import * as Dialog from "@radix-ui/react-dialog";
-import anime from "animejs";
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "react-hot-toast";
 import create from "zustand";
 import { immer } from "zustand/middleware/immer";
+import AppButton from "../components/button";
+import { Modal, modalStore } from "../components/modal";
 
 type AppInfoStoreType = {
-  envModalOpen: boolean;
-  buildArgsModalOpen: boolean;
-  modalOnChange: (val: string) => void;
   envVal: string;
+  envMountPath: string;
+  buildValMountPath: string;
   buildVal: string;
 };
 
 const appInfoStore = create<AppInfoStoreType>()(
   immer((set, get, store) => {
     return {
-      envModalOpen: false,
       buildArgsModalOpen: false,
-      modalOnChange: (val: string) => {
-        // dummy
-      },
       buildVal: "",
+      buildValMountPath: "",
       envVal: "",
+      envMountPath: "",
     };
   })
 );
 
 export const AppInfoPage = () => {
   const router = useRouter();
+  const envVal = appInfoStore((state) => state.envVal);
 
   useEffect(() => {
     router.beforePopState(() => {
@@ -42,23 +40,82 @@ export const AppInfoPage = () => {
 
   return (
     <div className="flex flex-col gap-2">
+      <div className="flex gap-3">
+        <AppButton className="bg-green-800 hover:bg-green-900">Save</AppButton>
+        <AppButton
+          className="bg-orange-800 hover:bg-orange-700"
+          onClick={() => {
+            router.push("/");
+          }}
+        >
+          Cancel
+        </AppButton>
+      </div>
       <div>App ID: {appId}</div>
       <div>App name: hha</div>
       <div>App status: active</div>
-      <div>environment variables: 10</div>
       <div className="flex gap-2">
         <div>environment variables: 3</div>
+        <div>{envVal}</div>
         <Modal
           onClick={() => {
+            modalStore.setState((state) => {
+              state.modalVal = appInfoStore.getState().envVal;
+            });
+
+            modalStore.setState((state) => {
+              state.modalOnChange = (newVal) => {
+                appInfoStore.setState((state) => {
+                  state.envVal = newVal;
+                });
+              };
+            });
+          }}
+        >
+          <button className="w-[50px] shadow py-[1px] rounded bg-fuchsia-800 hover:bg-fuchsia-700 active:bg-fuchsia-700 active:scale-95">
+            Edit
+          </button>
+        </Modal>
+        <input
+          className="bg-indigo-700 rounded-xl px-2 py-1 focus:ring-0 focus:ring-offset-0 border-0"
+          placeholder="Mount path"
+          onChange={(e) => {
             appInfoStore.setState((state) => {
-              state.modalOnChange = (newVal) => {};
+              state.envMountPath = e.currentTarget.value ?? "";
             });
           }}
         />
       </div>
       <div className="flex gap-2">
         <div>build variables: 3</div>
-        <Modal />
+        <Modal
+          onClick={() => {
+            modalStore.setState((state) => {
+              state.modalVal = appInfoStore.getState().buildVal;
+            });
+
+            modalStore.setState((state) => {
+              state.modalOnChange = (newVal) => {
+                appInfoStore.setState((state) => {
+                  state.buildVal = newVal;
+                });
+              };
+            });
+          }}
+        >
+          <button className="w-[50px] shadow py-[1px] rounded bg-fuchsia-800 hover:bg-fuchsia-700 active:bg-fuchsia-700 active:scale-95">
+            Edit
+          </button>
+        </Modal>
+        <input
+          className="bg-indigo-700 rounded-xl px-2 py-1 focus:ring-0 focus:ring-offset-0 border-0"
+          placeholder="Mount path"
+          onChange={(e) => {
+            appInfoStore.setState((state) => {
+              state.envMountPath = e.currentTarget.value ?? "";
+            });
+          }}
+        />
       </div>
       <div className=""></div>
     </div>
@@ -66,94 +123,3 @@ export const AppInfoPage = () => {
 };
 
 export default AppInfoPage;
-
-type ModalProps = {
-  onClick?: () => void;
-};
-const Modal = ({ onClick }: ModalProps) => {
-  const modalOpen = appInfoStore((state) => state.envModalOpen);
-
-  useEffect(() => {
-    anime({
-      targets: ".modal",
-      direction: "alternate",
-      loop: true,
-      easing: "easeInOutSine",
-      duration: 1000,
-      opacity: [0, 0.1],
-      translateX: 300,
-    });
-  }, []);
-
-  const [val, setVal] = useState(true);
-
-  return (
-    <>
-      <Dialog.Root open={modalOpen}>
-        <Dialog.Trigger>
-          <button
-            className="w-[50px] shadow py-[1px] rounded bg-fuchsia-800 hover:bg-fuchsia-700 active:bg-fuchsia-700 active:scale-95"
-            onClick={() => {
-              if (onClick) {
-                onClick();
-              }
-              appInfoStore.setState((state) => {
-                state.envModalOpen = true;
-              });
-            }}
-          >
-            Edit
-          </button>
-        </Dialog.Trigger>
-        <Dialog.Portal>
-          <Dialog.Overlay
-            className="w-screen h-screen absolute top-0 left-0 bg-black/50 z-10 modal"
-            onClick={() => {
-              appInfoStore.setState((state) => {
-                state.envModalOpen = false;
-              });
-            }}
-          />
-          <Dialog.Content
-            onKeyDown={(e) => {
-              if (e.key === "Escape") {
-                appInfoStore.setState((state) => {
-                  state.envModalOpen = false;
-                });
-              }
-            }}
-            className="rounded pointer-events-none w-1/2 h-1/2 z-50 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-900 ring-0 ring-offset-0 border-0"
-          >
-            <Dialog.Title />
-            <Dialog.Description />
-            <Dialog.Close />
-            {val && <ModalTextArea />}
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
-    </>
-  );
-};
-
-const ModalTextArea = () => {
-  const onChangeCallback = appInfoStore((state) => state.modalOnChange);
-  const textAreRef = useRef<HTMLTextAreaElement>(null);
-  useEffect(() => {
-    setTimeout(() => {
-      textAreRef.current?.focus();
-    }, 0);
-
-    return () => {};
-  }, [textAreRef]);
-  return (
-    <>
-      <textarea
-        onChange={(e) => {
-          onChangeCallback(e.currentTarget.value);
-        }}
-        ref={textAreRef}
-        className="w-full h-full bg-transparent text-slate-200 p-3 text-sm focus:ring-0 focus:ring-offset-0 focus:outline-none focus:border-none border-none border-0 resize-none"
-      ></textarea>
-    </>
-  );
-};
