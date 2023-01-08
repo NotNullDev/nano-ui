@@ -14,6 +14,7 @@ import {
 import AppButton from "../components/button";
 import { Modal, modalStore } from "../components/modal";
 import { App, NanoContext } from "../types/aa";
+import { appInfoStore } from "./app";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -86,7 +87,7 @@ export default function Home() {
           className="bg-indigo-700 px-3 py-1 rounded-xl"
         />
       </div>
-      <div className="flex flex-wrap justify-between gap-y-12">
+      <div className="grid grid-cols-4 gap-12">
         <Apps />
       </div>
     </div>
@@ -129,10 +130,15 @@ const AppPreview = ({ app }: AppPreviewProps) => {
   const router = useRouter();
 
   return (
-    <div className="w-[300px] h-[220px] shadow  bg-gradient-to-tr from-bg-indigo-800 via-bg-indigo-900 to-bg-indigo-800 col-span-1 flex flex-col p-6 rounded">
+    <div className="w-[300px] h-[220px] shadow  bg-gradient-to-tr from-bg-indigo-800 via-bg-indigo-900 to-bg-indigo-800 flex flex-col p-6 rounded">
       <div className="flex flex-1 flex-col gap-1">
         <div className="text-center mb-4">{app.appName}</div>
-        <div className="text-lime-500">active</div>
+        {app.appStatus === "enabled" && (
+          <div className="text-lime-500">enabled</div>
+        )}
+        {!(app.appStatus === "enabled") && (
+          <div className="text-orange-500">disabled</div>
+        )}
         <div className="">last commit at </div>
         <div className="">last build at </div>
       </div>
@@ -140,6 +146,9 @@ const AppPreview = ({ app }: AppPreviewProps) => {
         <button
           className="p-1 shadow-sm active:shadow-inner shadow-black w-[80px] rounded hover:bg-transparent/10 transition-all"
           onClick={() => {
+            appInfoStore.setState((state) => {
+              return globalStore.getState().apps.find((a) => a.ID === app.ID);
+            });
             router.push("/app?appId=" + app.ID);
           }}
         >
@@ -154,8 +163,12 @@ const Apps = () => {
   const apps = globalStore((state) => state.apps);
   return (
     <>
-      {apps.map((app) => {
-        return <AppPreview key={app.ID} app={app} />;
+      {apps.map((app, idx) => {
+        return (
+          <div key={app.ID} className={``}>
+            <AppPreview app={app} />
+          </div>
+        );
       })}
     </>
   );

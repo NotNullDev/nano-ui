@@ -17,6 +17,7 @@ export interface App {
   buildVal: string;
   buildValMountPath: string;
   repoUrl: string;
+  repoBranch: string;
 }
 
 export interface NanoConfig {

@@ -24,21 +24,22 @@ type AppInfoStoreType = {
   resetStore: () => void;
 } & App;
 
-const appInfoStore = create<AppInfoStoreType>()(
+export const appInfoStore = create<AppInfoStoreType>()(
   immer((set, get, store) => {
     const resetStore = () => {
       set((state) => {
         state = {
           ...state,
           appName: "",
-          appStatus: "",
+          appStatus: "enabled",
           envVal: "",
           envMountPath: "",
           buildVal: "",
-          buildValMountPath: "hahh",
+          buildValMountPath: "",
           repoUrl: "",
           CreatedAt: "",
           DeletedAt: "",
+          repoBranch: "",
           ID: 0,
           UpdatedAt: "",
         };
@@ -47,7 +48,7 @@ const appInfoStore = create<AppInfoStoreType>()(
 
     return {
       appName: "",
-      appStatus: "",
+      appStatus: "enabled",
       envVal: "",
       envMountPath: "",
       buildVal: "",
@@ -55,6 +56,7 @@ const appInfoStore = create<AppInfoStoreType>()(
       repoUrl: "",
       CreatedAt: "",
       DeletedAt: "",
+      repoBranch: "",
       ID: 0,
       UpdatedAt: "",
       resetStore,
@@ -68,19 +70,24 @@ export const AppInfoPage = () => {
   const appInfo = appInfoStore((state) => state);
   const envVal = appInfoStore((state) => state.envVal);
   const repoUrlRef = useRef<HTMLInputElement>(null);
+  const repoBranchRef = useRef<HTMLInputElement>(null);
   const buildPathRef = useRef<HTMLInputElement>(null);
   const envPathRef = useRef<HTMLInputElement>(null);
   const appNameRef = useRef<HTMLInputElement>(null);
+  const appStatusRef = useRef<HTMLInputElement>(null);
 
   const { appId } = router.query;
 
   useEffect(() => {
     router.beforePopState(() => {
-      toast("bye!");
+      appInfoStore.getState().resetStore();
       return true;
     });
     if (repoUrlRef.current) {
       repoUrlRef.current.value = appInfo.repoUrl;
+    }
+    if (repoBranchRef.current) {
+      repoBranchRef.current.value = appInfo.repoBranch;
     }
     if (buildPathRef.current) {
       buildPathRef.current.value = appInfo.buildValMountPath;
@@ -91,6 +98,9 @@ export const AppInfoPage = () => {
     if (appNameRef.current) {
       appNameRef.current.value = appInfo.appName;
     }
+    if (appStatusRef.current) {
+      appStatusRef.current.checked = appInfo.appStatus === "enabled";
+    }
   }, []);
 
   useEffect(() => {
@@ -99,9 +109,7 @@ export const AppInfoPage = () => {
         const foundApp = globalStore
           .getState()
           .apps.find((app) => app.ID === Number(appId));
-        if (foundApp) {
-          return foundApp;
-        }
+        return foundApp;
       });
     }
   }, [appId]);
@@ -148,12 +156,40 @@ export const AppInfoPage = () => {
           }}
         />
       </div>
-      <div>App status: {appInfo.appStatus}</div>
+      <div className="flex gap-2">
+        <div>App status: </div>
+        <div className="flex items-center">
+          <input
+            ref={appStatusRef}
+            id="checked-checkbox"
+            type="checkbox"
+            value=""
+            className="w-4 h-4 accent-indigo-600"
+            onChange={(e) => {
+              if (e.currentTarget.checked) {
+                appInfoStore.setState((state) => {
+                  state.appStatus = "enabled";
+                });
+              } else {
+                appInfoStore.setState((state) => {
+                  state.appStatus = "disabled";
+                });
+              }
+            }}
+          />
+          <label
+            htmlFor="checked-checkbox"
+            className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+          >
+            {appInfo.appStatus}
+          </label>
+        </div>
+      </div>
       <div className="flex gap-2 items-center">
         <label>Repo url: </label>
         <input
           ref={repoUrlRef}
-          className="bg-indigo-700 rounded-xl px-2 py-1 focus:ring-0 focus:ring-offset-0 border-0"
+          className="bg-indigo-700 rounded-xl px-2 py-1 focus:ring-0 focus:ring-offset-0 border-0 w-[400px]"
           placeholder="Repo url"
           onChange={(e) => {
             appInfoStore.setState((state) => {
@@ -162,8 +198,21 @@ export const AppInfoPage = () => {
           }}
         />
       </div>
+      <div className="flex gap-2 items-center">
+        <label>Repo branch: </label>
+        <input
+          ref={repoBranchRef}
+          className="bg-indigo-700 rounded-xl px-2 py-1 focus:ring-0 focus:ring-offset-0 border-0 w-[400px]"
+          placeholder="default"
+          onChange={(e) => {
+            appInfoStore.setState((state) => {
+              state.repoBranch = e.currentTarget.value ?? "";
+            });
+          }}
+        />
+      </div>
       <div className="flex gap-2">
-        <div>environment variables: 3</div>
+        <div>environment variables: </div>
         <Modal
           onClick={() => {
             modalStore.setState((state) => {
@@ -185,7 +234,7 @@ export const AppInfoPage = () => {
             Edit
           </div>
         </Modal>
-        <input
+        {/* <input
           ref={envPathRef}
           className="bg-indigo-700 rounded-xl px-2 py-1 focus:ring-0 focus:ring-offset-0 border-0"
           placeholder="Mount path"
@@ -194,10 +243,10 @@ export const AppInfoPage = () => {
               state.envMountPath = e.currentTarget.value ?? "";
             });
           }}
-        />
+        /> */}
       </div>
       <div className="flex gap-2">
-        <div>build variables: 3</div>
+        <div>build variables: </div>
         <Modal
           onClick={() => {
             modalStore.setState((state) => {
@@ -240,6 +289,7 @@ async function onSaveAppClick() {
     state.apps[idx] = updatedApp;
   });
   toast("success!", { icon: "👍" });
+  router.push("/");
 }
 
 async function onDeleteClick() {

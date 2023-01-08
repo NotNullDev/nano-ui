@@ -77,7 +77,7 @@ export const Modal = ({ onClick, children }: ModalProps) => {
         </Dialog.Trigger>
         <Dialog.Portal>
           <Dialog.Overlay
-            className="w-screen h-screen absolute top-0 left-0 bg-black/50 z-10 modal"
+            className="w-screen h-screen max-h-screen absolute top-0 left-0 bg-black/50 z-10 modal"
             onClick={() => {
               modalStore.setState((state) => {
                 state.modalOpen = false;
@@ -93,7 +93,7 @@ export const Modal = ({ onClick, children }: ModalProps) => {
                 });
               }
             }}
-            className="rounded pointer-events-none w-1/2 h-1/2 z-50 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-900 ring-0 ring-offset-0 border-0"
+            className="rounded absolute pointer-events-none w-1/2 h-1/2 z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-900 ring-0 ring-offset-0 border-0"
           >
             <Dialog.Title />
             <Dialog.Description />

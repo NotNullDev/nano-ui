@@ -6,6 +6,10 @@ export async function fetchNanoContext(): Promise<NanoContext> {
   data.nanoConfig.globalEnvironment = base64Decode(
     data.nanoConfig.globalEnvironment
   );
+  data.apps.map((app) => {
+    app.envVal = base64Decode(app.envVal);
+    app.buildVal = base64Decode(app.buildVal);
+  });
   return data;
 }
 
