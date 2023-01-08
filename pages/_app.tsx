@@ -2,6 +2,8 @@ import type { AppProps } from "next/app";
 import Link from "next/link";
 import { Toaster } from "react-hot-toast";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { showEnv } from "../api/nanoContext";
+import AppButton from "../components/button";
 import "../styles/globals.css";
 
 const queryClient = new QueryClient({
@@ -23,6 +25,13 @@ export default function App({ Component, pageProps }: AppProps) {
             }}
           />
           <Header />
+          <AppButton
+            onClick={() => {
+              showEnv();
+            }}
+          >
+            show env
+          </AppButton>
           <Component {...pageProps} />
         </div>
       </div>

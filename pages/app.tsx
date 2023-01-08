@@ -4,7 +4,7 @@ import { toast } from "react-hot-toast";
 import create from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { globalStore } from ".";
-import { deleteApp, updateApp } from "../api/nanoContext";
+import { deleteApp, runBuild, updateApp } from "../api/nanoContext";
 import AppButton from "../components/button";
 import { Modal, modalStore } from "../components/modal";
 import { App } from "../types/aa";
@@ -131,6 +131,15 @@ export const AppInfoPage = () => {
             }}
           >
             Cancel
+          </AppButton>
+          <AppButton
+            className="ml-12"
+            onClick={async () => {
+              await runBuild(appInfo.appName);
+              toast("Build started", { icon: "🚀" });
+            }}
+          >
+            Build now
           </AppButton>
         </div>
         <div>

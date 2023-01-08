@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import { globalStore } from "../pages";
 import { App, NanoContext } from "../types/aa";
 
@@ -5,6 +6,11 @@ const serverUrl =
   process.env.NEXT_PUBLIC_NANO_SERVER_URL ?? "http://localhost:8080";
 
 const initNanoAuth = process.env.NEXT_PUBLIC_NANO_INIT_AUTH ?? "";
+
+export function showEnv() {
+  toast("Nano Auth: " + initNanoAuth);
+  toast("serverUrl: " + serverUrl);
+}
 
 export async function fetchNanoContext(): Promise<NanoContext> {
   const res = await nanoFetch("/");
@@ -77,6 +83,14 @@ export async function deleteApp(appId: number) {
   const data = (await res.text()) as string;
 
   return Number(data);
+}
+
+export async function runBuild(appName: string) {
+  const res = await nanoFetch("/build?appName=" + appName, {
+    method: "POST",
+  });
+  const data = (await res.text()) as string;
+  return data;
 }
 
 function base64Decode(str: string) {
