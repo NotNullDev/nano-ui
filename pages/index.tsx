@@ -26,7 +26,7 @@ export const globalStore = create<GlobalStoreType>()(
       apps: [],
       nanoConfig: {
         globalEnvironment: "",
-        token: "NOT SET",
+        token: "",
       },
     };
   })
