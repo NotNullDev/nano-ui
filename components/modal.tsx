@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import anime from "animejs";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import create from "zustand";
 import { immer } from "zustand/middleware/immer";
 
@@ -8,12 +8,14 @@ export type ModalStoreType = {
   modalOnChange: (val: string) => void;
   modalVal: string;
   modalOpen: boolean;
+  modalOnClose: () => void;
 };
 
 export const modalStore = create<ModalStoreType>()(
   immer((get, set, store) => {
     return {
       modalOnChange: (val: string) => {},
+      modalOnClose: () => {},
       modalVal: "",
       modalOpen: false,
     };
@@ -24,6 +26,7 @@ export type ModalProps = {
   onClick?: () => void;
   children?: React.ReactNode;
 };
+
 export const Modal = ({ onClick, children }: ModalProps) => {
   const modalOpen = modalStore((state) => state.modalOpen);
 
@@ -40,10 +43,24 @@ export const Modal = ({ onClick, children }: ModalProps) => {
   }, []);
 
   const [val, setVal] = useState(true);
+  const [c, setChildren] = useState<React.ReactNode>(null);
+
+  useEffect(() => {
+    if (children) {
+      setChildren(children);
+    }
+  }, []);
 
   return (
     <>
-      <Dialog.Root open={modalOpen}>
+      <Dialog.Root
+        open={modalOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            modalStore.getState().modalOnClose();
+          }
+        }}
+      >
         <Dialog.Trigger>
           <div
             onClick={() => {
@@ -55,7 +72,7 @@ export const Modal = ({ onClick, children }: ModalProps) => {
               });
             }}
           >
-            {children}
+            {c}
           </div>
         </Dialog.Trigger>
         <Dialog.Portal>
@@ -72,6 +89,7 @@ export const Modal = ({ onClick, children }: ModalProps) => {
               if (e.key === "Escape") {
                 modalStore.setState((state) => {
                   state.modalOpen = false;
+                  state.modalOnClose();
                 });
               }
             }}
