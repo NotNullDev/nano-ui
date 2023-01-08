@@ -1,7 +1,10 @@
 import { App, NanoContext } from "../types/aa";
 
+const serverUrl =
+  process.env.NEXT_PUBLIC_NANO_SERVER_URL ?? "http://localhost:8080";
+
 export async function fetchNanoContext(): Promise<NanoContext> {
-  const res = await fetch("http://localhost:8080");
+  const res = await fetch(serverUrl + "");
   const data = (await res.json()) as NanoContext;
   data.nanoConfig.globalEnvironment = base64Decode(
     data.nanoConfig.globalEnvironment
@@ -14,7 +17,7 @@ export async function fetchNanoContext(): Promise<NanoContext> {
 }
 
 export async function resetToken(): Promise<string> {
-  const res = await fetch("http://localhost:8080/reset-token", {
+  const res = await fetch(serverUrl + "/reset-token", {
     method: "POST",
   });
   let data = (await res.text()) as string;
@@ -27,7 +30,7 @@ export async function resetToken(): Promise<string> {
 }
 
 export async function updateGlobalEnv(updatedEnv: string): Promise<string> {
-  const res = await fetch("http://localhost:8080/update-global-env", {
+  const res = await fetch(serverUrl + "/update-global-env", {
     method: "POST",
     headers: {
       "Content-Type": "application/text",
@@ -39,7 +42,7 @@ export async function updateGlobalEnv(updatedEnv: string): Promise<string> {
 }
 
 export async function createApp(name: string) {
-  const res = await fetch("http://localhost:8080/create-app", {
+  const res = await fetch(serverUrl + "/create-app", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -53,7 +56,7 @@ export async function createApp(name: string) {
 }
 
 export async function updateApp(app: App) {
-  const res = await fetch("http://localhost:8080/update-app", {
+  const res = await fetch(serverUrl + "/update-app", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -65,7 +68,7 @@ export async function updateApp(app: App) {
 }
 
 export async function deleteApp(appId: number) {
-  const res = await fetch("http://localhost:8080/delete-app?id=" + appId, {
+  const res = await fetch(serverUrl + "/delete-app?id=" + appId, {
     method: "DELETE",
   });
   const data = (await res.text()) as string;
