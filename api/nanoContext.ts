@@ -5,7 +5,9 @@ import { App, NanoContext } from "../types/aa";
 const serverUrl =
   process.env.NEXT_PUBLIC_NANO_SERVER_URL ?? "http://localhost:8080";
 
-const initNanoAuth = process.env.NEXT_PUBLIC_NANO_INIT_AUTH ?? "";
+const initNanoAuth =
+  process.env.NEXT_PUBLIC_NANO_INIT_AUTH ??
+  "62285a21-547d-46db-a9fd-a2fec5161da5";
 
 export function showEnv() {
   toast("Nano Auth: " + initNanoAuth);
