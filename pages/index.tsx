@@ -73,7 +73,7 @@ export default function Home() {
           >
             Reset token
           </AppButton>
-          <AppButton className="w-40 ml-12">
+          <AppButton className="min-w-[140px] ml-12">
             <Link href="/nano-management">Management page</Link>
           </AppButton>
           <AppButton

@@ -1,4 +1,5 @@
 import toast from "react-hot-toast";
+import { globalStore } from "../pages";
 import { AuthStore } from "../pages/login";
 import { App, NanoContext } from "../types/aa";
 
@@ -86,6 +87,9 @@ export async function deleteApp(appId: number) {
 export async function runBuild(appName: string) {
   const res = await nanoFetch("/build?appName=" + appName, {
     method: "POST",
+    headers: {
+      Authorization: globalStore.getState().nanoConfig.token,
+    },
   });
   const data = (await res.text()) as string;
   return data;
@@ -147,7 +151,8 @@ async function nanoFetch(path: string, options?: RequestInit) {
       },
     };
   }
-
+  toast("fetching: " + serverUrl + path);
+  console.dir(options.headers);
   const resp = await fetch(serverUrl + path, options);
 
   if (
