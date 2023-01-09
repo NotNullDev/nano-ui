@@ -1,5 +1,5 @@
 import router from "next/router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import create from "zustand";
 import { persist } from "zustand/middleware";
@@ -10,6 +10,7 @@ import AppButton from "../components/button";
 type AuthStoreType = {
   isLoggedIn: boolean;
   token: string;
+  serverUrl: string;
 };
 
 export const AuthStore = create<AuthStoreType>()(
@@ -18,6 +19,8 @@ export const AuthStore = create<AuthStoreType>()(
       return {
         token: "",
         isLoggedIn: false,
+        serverUrl:
+          process.env.NEXT_PUBLIC_NANO_SERVER_URL ?? "http://localhost:8080",
       };
     }),
     {
@@ -36,12 +39,18 @@ const formStore = create<FormStoreType>()(
     return {
       username: "",
       password: "",
+      serverUrl: "",
     };
   })
 );
 
 const LoginPage = () => {
+  const serverUrlInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
+    if (serverUrlInputRef.current) {
+      serverUrlInputRef.current.value = AuthStore.getState().serverUrl;
+    }
     if (AuthStore.getState().isLoggedIn) {
       router.push("/");
     }
@@ -76,10 +85,27 @@ const LoginPage = () => {
             }}
           />
         </div>
+        <div className="flex gap-2 items-center">
+          <label>Server url: </label>
+          <input
+            ref={serverUrlInputRef}
+            type="text"
+            className="bg-indigo-700 rounded-xl px-2 py-1 focus:ring-0 focus:ring-offset-0 border-0"
+            placeholder="Server url"
+            onChange={(e) => {
+              formStore.setState((state: any) => {
+                state.serverUrl = e.currentTarget.value ?? "";
+              });
+            }}
+          />
+        </div>
         <AppButton
           onClick={async (e) => {
             e.preventDefault();
             try {
+              AuthStore.setState((state) => {
+                state.serverUrl = AuthStore.getState().serverUrl;
+              });
               const response = await login(
                 formStore.getState().username,
                 formStore.getState().password

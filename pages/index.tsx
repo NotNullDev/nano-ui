@@ -10,7 +10,6 @@ import {
   createApp,
   fetchNanoContext,
   logout,
-  resetToken,
   updateGlobalEnv,
 } from "../api/nanoContext";
 import AppButton from "../components/button";
@@ -48,32 +47,7 @@ export default function Home() {
     <div>
       <div className="w-full h-[70px] mb-4 shadow shadow-indigo-600 flex gap-2 items-center px-10 justify-between">
         <div className="flex gap-2">
-          <AppButton
-            className="h-min"
-            onClick={async () => {
-              await navigator.clipboard.writeText(
-                globalStore.getState().nanoConfig.token
-              );
-              toast.success("token copied to clipboard");
-            }}
-          >
-            Copy token
-          </AppButton>
-          <AppButton
-            className="whitespace-nowrap h-min"
-            onClick={async () => {
-              const token = await resetToken();
-              if (token) {
-                globalStore.setState((state) => {
-                  state.nanoConfig.token = token;
-                });
-                toast("success", { icon: "🎉" });
-              }
-            }}
-          >
-            Reset token
-          </AppButton>
-          <AppButton className="min-w-[140px] ml-12">
+          <AppButton className="min-w-[140px] ">
             <Link href="/nano-management">Management page</Link>
           </AppButton>
           <AppButton

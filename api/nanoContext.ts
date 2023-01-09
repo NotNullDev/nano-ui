@@ -3,11 +3,8 @@ import { globalStore } from "../pages";
 import { AuthStore } from "../pages/login";
 import { App, NanoContext } from "../types/aa";
 
-const serverUrl =
-  process.env.NEXT_PUBLIC_NANO_SERVER_URL ?? "http://localhost:8080";
-
 export function showEnv() {
-  toast("serverUrl: " + serverUrl);
+  toast("serverUrl: " + AuthStore.getState().serverUrl);
 }
 
 export async function fetchNanoContext(): Promise<NanoContext> {
@@ -152,7 +149,7 @@ async function nanoFetch(path: string, options?: RequestInit) {
     };
   }
 
-  const resp = await fetch(serverUrl + path, options);
+  const resp = await fetch(AuthStore.getState().serverUrl + path, options);
 
   if (
     (AuthStore.getState().isLoggedIn && resp.status === 401) ||
