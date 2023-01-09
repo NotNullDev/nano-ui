@@ -8,6 +8,7 @@ import { deleteApp, runBuild, updateApp } from "../api/nanoContext";
 import AppButton from "../components/button";
 import { Modal, modalStore } from "../components/modal";
 import { App } from "../types/aa";
+import { queryClient } from "./_app";
 
 export type AppInfo = {
   appId: number;
@@ -66,6 +67,7 @@ export const appInfoStore = create<AppInfoStoreType>()(
 
 export const AppInfoPage = () => {
   const router = useRouter();
+  const buildingAppId = globalStore((state) => state.buildingAppId);
 
   const appInfo = appInfoStore((state) => state);
   const envVal = appInfoStore((state) => state.envVal);
@@ -133,10 +135,13 @@ export const AppInfoPage = () => {
             Cancel
           </AppButton>
           <AppButton
-            className="ml-12"
+            className="ml-12 disabled:opacity-40"
+            disabled={buildingAppId === appInfo.ID}
             onClick={async () => {
               await runBuild(appInfo.appName);
               toast("Build started", { icon: "🚀" });
+              queryClient.invalidateQueries("nanoContext");
+              router.push("/");
             }}
           >
             Build now

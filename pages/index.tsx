@@ -29,6 +29,7 @@ export const globalStore = create<GlobalStoreType>()(
         globalEnvironment: "",
         token: "",
       },
+      buildingAppId: 0, // 0 means no app is building
     };
   })
 );
@@ -41,6 +42,7 @@ export default function Home() {
       });
       console.dir(data);
     },
+    refetchInterval: 1000 * 10,
   });
 
   return (
@@ -115,6 +117,7 @@ type AppPreviewProps = {
 
 const AppPreview = ({ app }: AppPreviewProps) => {
   const router = useRouter();
+  const buildingAPpId = globalStore((state) => state.buildingAppId);
 
   return (
     <div className="w-[300px] h-[220px] shadow  bg-gradient-to-tr from-bg-indigo-800 via-bg-indigo-900 to-bg-indigo-800 flex flex-col p-6 rounded">
@@ -126,8 +129,12 @@ const AppPreview = ({ app }: AppPreviewProps) => {
         {!(app.appStatus === "enabled") && (
           <div className="text-orange-500">disabled</div>
         )}
-        <div className="">last commit at </div>
-        <div className="">last build at </div>
+        {buildingAPpId === app.ID && (
+          <div className="text-green-500 animate-pulse">building...</div>
+        )}
+        {!(buildingAPpId === app.ID) && (
+          <div className="text-orange-500">not building</div>
+        )}
       </div>
       <div className="justify-end flex">
         <button

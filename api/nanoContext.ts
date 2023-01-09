@@ -161,7 +161,9 @@ async function nanoFetch(path: string, options?: RequestInit) {
   }
 
   if (!resp.ok) {
-    throw new Error(resp.statusText);
+    const errMessage = await resp.json();
+    toast(errMessage.error);
+    // throw new Error(resp.statusText);
   }
 
   return resp;

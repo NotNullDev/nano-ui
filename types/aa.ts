@@ -3,6 +3,7 @@
 export interface NanoContext {
   apps: App[];
   nanoConfig: NanoConfig;
+  buildingAppId: number;
 }
 
 export interface App {

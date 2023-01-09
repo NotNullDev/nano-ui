@@ -7,7 +7,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import "../styles/globals.css";
 import { AuthStore } from "./login";
 
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
