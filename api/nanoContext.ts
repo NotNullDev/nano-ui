@@ -151,8 +151,7 @@ async function nanoFetch(path: string, options?: RequestInit) {
       },
     };
   }
-  toast("fetching: " + serverUrl + path);
-  console.dir(options.headers);
+
   const resp = await fetch(serverUrl + path, options);
 
   if (
