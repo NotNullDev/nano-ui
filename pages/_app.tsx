@@ -1,10 +1,11 @@
 import type { AppProps } from "next/app";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { showEnv } from "../api/nanoContext";
-import AppButton from "../components/button";
 import "../styles/globals.css";
+import { AuthStore } from "./login";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -15,6 +16,26 @@ const queryClient = new QueryClient({
 });
 
 export default function App({ Component, pageProps }: AppProps) {
+  const [ok, setOk] = useState(false);
+  const isLoggedIn = AuthStore((state) => state.isLoggedIn);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      setOk(true);
+    } else {
+      router.push("/login");
+    }
+  }, [isLoggedIn, router.asPath]);
+
+  if (!ok && router.pathname !== "/login") {
+    return (
+      <div className="text-slate-300 h-screen w-screen flex justify-center items-center">
+        <div>Redirecting...</div>
+      </div>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <div className="bg-gradient-to-br from-indigo-800 via-indigo-900 to-indigo-700 text-slate-300 min-h-screen justify-center flex ">
@@ -25,13 +46,6 @@ export default function App({ Component, pageProps }: AppProps) {
             }}
           />
           <Header />
-          <AppButton
-            onClick={() => {
-              showEnv();
-            }}
-          >
-            show env
-          </AppButton>
           <Component {...pageProps} />
         </div>
       </div>

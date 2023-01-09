@@ -1,4 +1,5 @@
 import { Inter } from "@next/font/google";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useRef } from "react";
 import toast from "react-hot-toast";
@@ -8,6 +9,7 @@ import { immer } from "zustand/middleware/immer";
 import {
   createApp,
   fetchNanoContext,
+  logout,
   resetToken,
   updateGlobalEnv,
 } from "../api/nanoContext";
@@ -70,6 +72,17 @@ export default function Home() {
             }}
           >
             Reset token
+          </AppButton>
+          <AppButton className="w-40 ml-12">
+            <Link href="/nano-management">Management page</Link>
+          </AppButton>
+          <AppButton
+            className="w-16 ml-2"
+            onClick={() => {
+              logout();
+            }}
+          >
+            Logout
           </AppButton>
         </div>
         <div>
