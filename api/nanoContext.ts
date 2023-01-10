@@ -1,5 +1,6 @@
 import toast from "react-hot-toast";
 import { globalStore } from "../pages";
+import { AppLogsType } from "../pages/app";
 import { AuthStore } from "../pages/login";
 import { App, NanoContext } from "../types/aa";
 
@@ -129,6 +130,12 @@ export async function logout() {
   AuthStore.setState((state) => {
     (state.isLoggedIn = false), (state.token = "");
   });
+}
+
+export async function fetchLogs(appId: number, limit: number = 1) {
+  const res = await nanoFetch("/logs?appId=" + appId + "&limit=" + limit);
+  const data = (await res?.json()) as AppLogsType;
+  return data;
 }
 
 function base64Decode(str: string) {

@@ -4,7 +4,7 @@ import { toast } from "react-hot-toast";
 import create from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { globalStore } from ".";
-import { deleteApp, runBuild, updateApp } from "../api/nanoContext";
+import { deleteApp, fetchLogs, runBuild, updateApp } from "../api/nanoContext";
 import AppButton from "../components/button";
 import { Modal, modalStore } from "../components/modal";
 import { App } from "../types/aa";
@@ -21,8 +21,17 @@ export type AppInfo = {
   repoUrl: string;
 };
 
+export type AppLogsType = {
+  logs: string;
+  appId: number;
+  ID: number;
+  startedAt: string;
+  finishedAt: string;
+};
+
 type AppInfoStoreType = {
   resetStore: () => void;
+  appLogs: AppLogsType;
 } & App;
 
 export const appInfoStore = create<AppInfoStoreType>()(
@@ -43,6 +52,7 @@ export const appInfoStore = create<AppInfoStoreType>()(
           repoBranch: "",
           ID: 0,
           UpdatedAt: "",
+          appLogs: { appId: 0, finishedAt: "", ID: 0, logs: "", startedAt: "" },
         };
       });
     };
@@ -60,6 +70,7 @@ export const appInfoStore = create<AppInfoStoreType>()(
       repoBranch: "",
       ID: 0,
       UpdatedAt: "",
+      appLogs: { appId: 0, finishedAt: "", ID: 0, logs: "", startedAt: "" },
       resetStore,
     };
   })
@@ -70,7 +81,6 @@ export const AppInfoPage = () => {
   const buildingAppId = globalStore((state) => state.buildingAppId);
 
   const appInfo = appInfoStore((state) => state);
-  const envVal = appInfoStore((state) => state.envVal);
   const repoUrlRef = useRef<HTMLInputElement>(null);
   const repoBranchRef = useRef<HTMLInputElement>(null);
   const buildPathRef = useRef<HTMLInputElement>(null);
@@ -248,16 +258,6 @@ export const AppInfoPage = () => {
             Edit
           </div>
         </Modal>
-        {/* <input
-          ref={envPathRef}
-          className="bg-indigo-700 rounded-xl px-2 py-1 focus:ring-0 focus:ring-offset-0 border-0"
-          placeholder="Mount path"
-          onChange={(e) => {
-            appInfoStore.setState((state) => {
-              state.envMountPath = e.currentTarget.value ?? "";
-            });
-          }}
-        /> */}
       </div>
       <div className="flex gap-2">
         <div>build variables: </div>
@@ -291,10 +291,60 @@ export const AppInfoPage = () => {
           }}
         />
       </div>
-      <div className=""></div>
+      <AppLogs />
     </div>
   );
 };
+
+const AppLogs = () => {
+  const appLogs = appInfoStore((state) => state.appLogs);
+
+  return (
+    <div className="mt-10 flex flex-col gap-3">
+      <AppButton
+        className="whitespace-nowrap w-[140px]"
+        onClick={onFetchLatestLogs}
+      >
+        Fetch latest logs
+      </AppButton>
+      <div className="w-[50wh] h-[30vh] bg-indigo-900 rounded flex flex-col-reverse overflow-auto">
+        {
+          <div className="p-2">
+            {appLogs?.logs.split("\n").map((log, idx) => {
+              return <div key={idx}> {log}</div>;
+            })}
+          </div>
+        }
+      </div>
+      <AppButton
+        className="whitespace-nowrap w-[140px]"
+        onClick={onDownloadLogsClick}
+      >
+        Download logs
+      </AppButton>
+    </div>
+  );
+};
+
+async function onDownloadLogsClick() {
+  const logs = await fetchLogs(appInfoStore.getState().ID);
+
+  const link = document.createElement("a");
+  link.download = "logs.txt";
+
+  const blob = new Blob([logs.logs], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  link.href = url;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+async function onFetchLatestLogs() {
+  const logs = await fetchLogs(appInfoStore.getState().ID);
+  appInfoStore.setState((state) => {
+    state.appLogs = logs;
+  });
+}
 
 async function onSaveAppClick() {
   const updatedApp = await updateApp(appInfoStore.getState());
