@@ -279,7 +279,7 @@ export const AppInfoPage = () => {
           </div>
         </Modal>
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-center">
         <div>build variables: </div>
         <Modal
           onClick={() => {
