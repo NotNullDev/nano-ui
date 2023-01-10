@@ -322,10 +322,7 @@ const AppLogs = () => {
 
   return (
     <div className="mt-10 flex flex-col gap-3">
-      <AppButton
-        className="whitespace-nowrap w-[140px]"
-        onClick={onFetchLatestLogs}
-      >
+      <AppButton className="whitespace-nowrap w-32" onClick={onFetchLatestLogs}>
         Fetch latest logs
       </AppButton>
       <div className="flex gap-2 flex-col">
@@ -354,7 +351,7 @@ const AppLogs = () => {
         }
       </div>
       <AppButton
-        className="whitespace-nowrap w-[140px]"
+        className="whitespace-nowrap w-32"
         onClick={onDownloadLogsClick}
       >
         Download logs

@@ -1,3 +1,8 @@
+import {
+  EventSourceMessage,
+  fetchEventSource,
+  FetchEventSourceInit,
+} from "@microsoft/fetch-event-source";
 import toast from "react-hot-toast";
 import { globalStore } from "../pages";
 import { AppLogsType } from "../pages/app";
@@ -81,7 +86,7 @@ export async function deleteApp(appId: number) {
 
   return Number(data);
 }
-
+// https://github.com/Azure/fetch-event-source
 export async function runBuild(appName: string) {
   const res = await nanoFetch("/build?appName=" + appName, {
     method: "POST",
@@ -89,8 +94,24 @@ export async function runBuild(appName: string) {
       Authorization: globalStore.getState().nanoConfig.token,
     },
   });
+
   const data = (await res?.text()) as string;
   return data;
+}
+
+export async function runBuildWithLogsStream(appName: string) {
+  await nanoFetchEventSource("/build?appName=" + appName, {
+    onmessage: (ev) => {
+      toast(ev.data);
+    },
+    onerror: (err) => {
+      toast(JSON.stringify(err));
+    },
+    headers: {
+      Authorization: globalStore.getState().nanoConfig.token,
+    },
+    method: "POST",
+  });
 }
 
 export async function updateUser(username: string, password: string) {
@@ -175,4 +196,27 @@ async function nanoFetch(path: string, options?: RequestInit) {
   }
 
   return resp;
+}
+
+async function nanoFetchEventSource(
+  path: string,
+  options?: FetchEventSourceInit,
+  callback?: (ev: EventSourceMessage) => void
+) {
+  if (options) {
+    options.headers = {
+      ...options.headers,
+      "nano-token": AuthStore.getState().token,
+    };
+  } else {
+    options = {
+      headers: {
+        "nano-token": AuthStore.getState().token,
+      },
+    };
+  }
+
+  await fetchEventSource(AuthStore.getState().serverUrl + path, {
+    ...options,
+  });
 }
