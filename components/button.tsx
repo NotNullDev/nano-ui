@@ -9,7 +9,7 @@ const AppButton = (props: AppButtonProps) => {
     <button
       {...props}
       className={
-        "p-1 shadow-sm active:shadow-inner shadow-black w-[80px] rounded hover:bg-transparent/10 transition-all active:scale-95 " +
+        "p-1 shadow-sm active:shadow-inner shadow-black min-w-[80px] rounded hover:bg-transparent/10 transition-all active:scale-95 " +
         requestedClassName
       }
     >
