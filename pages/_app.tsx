@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { UseNanoContext } from "../api/hooks";
 import "../styles/globals.css";
 import { AuthStore } from "./login";
 
@@ -54,6 +55,8 @@ export default function App({ Component, pageProps }: AppProps) {
 }
 
 const Header = () => {
+  UseNanoContext(); // XD
+
   return (
     <header className="p-4 pt-6 w-full mb-8">
       <Link href="/" className="text-xl hover:text-slate-400">

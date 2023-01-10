@@ -27,6 +27,7 @@ export type AppLogsType = {
   ID: number;
   startedAt: string;
   finishedAt: string;
+  buildStatus: string;
 };
 
 type AppInfoStoreType = {
@@ -52,9 +53,18 @@ export const appInfoStore = create<AppInfoStoreType>()(
           repoBranch: "",
           ID: 0,
           UpdatedAt: "",
-          appLogs: { appId: 0, finishedAt: "", ID: 0, logs: "", startedAt: "" },
+          appLogs: {
+            appId: 0,
+            finishedAt: "",
+            ID: 0,
+            logs: "",
+            startedAt: "",
+            buildStatus: "",
+          },
         };
+        return state;
       });
+      toast("hhaa");
     };
 
     return {
@@ -70,13 +80,25 @@ export const appInfoStore = create<AppInfoStoreType>()(
       repoBranch: "",
       ID: 0,
       UpdatedAt: "",
-      appLogs: { appId: 0, finishedAt: "", ID: 0, logs: "", startedAt: "" },
+      appLogs: {
+        appId: 0,
+        finishedAt: "",
+        ID: 0,
+        logs: "",
+        startedAt: "",
+        buildStatus: "",
+      },
       resetStore,
     };
   })
 );
 
+const getAppIdFromWindowLocation = () => {
+  return new URLSearchParams(window.location.search).get("appId");
+};
+
 export const AppInfoPage = () => {
+  const apps = globalStore((state) => state.apps);
   const router = useRouter();
   const buildingAppId = globalStore((state) => state.buildingAppId);
 
@@ -88,13 +110,14 @@ export const AppInfoPage = () => {
   const appNameRef = useRef<HTMLInputElement>(null);
   const appStatusRef = useRef<HTMLInputElement>(null);
 
-  const { appId } = router.query;
+  const appId = getAppIdFromWindowLocation();
 
   useEffect(() => {
     router.beforePopState(() => {
       appInfoStore.getState().resetStore();
       return true;
     });
+
     if (repoUrlRef.current) {
       repoUrlRef.current.value = appInfo.repoUrl;
     }
@@ -113,21 +136,19 @@ export const AppInfoPage = () => {
     if (appStatusRef.current) {
       appStatusRef.current.checked = appInfo.appStatus === "enabled";
     }
-  }, []);
+  }, [appInfo]);
 
   useEffect(() => {
-    if (appId) {
-      appInfoStore.setState((state) => {
-        const foundApp = globalStore
-          .getState()
-          .apps.find((app) => app.ID === Number(appId));
-        return foundApp;
-      });
-    }
-  }, [appId]);
+    appInfoStore.setState((state) => {
+      const found = globalStore
+        .getState()
+        .apps.find((a) => a.ID === Number(appId));
+      return found;
+    });
+  }, [apps]);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2" key={appInfo.ID}>
       <div className="flex justify-between">
         <div className="flex gap-3">
           <AppButton
@@ -307,6 +328,22 @@ const AppLogs = () => {
       >
         Fetch latest logs
       </AppButton>
+      <div className="flex gap-2 flex-col">
+        <div>Started at: {appLogs?.startedAt} </div>
+        <div>Finished at at: {appLogs?.startedAt} </div>
+        <div>
+          Status:{" "}
+          <span
+            className={
+              appLogs?.buildStatus === "success"
+                ? "text-green-500"
+                : "text-orange-500"
+            }
+          >
+            {appLogs?.buildStatus}
+          </span>
+        </div>
+      </div>
       <div className="w-[50wh] h-[30vh] bg-indigo-900 rounded flex flex-col-reverse overflow-auto">
         {
           <div className="p-2">
@@ -327,7 +364,7 @@ const AppLogs = () => {
 };
 
 async function onDownloadLogsClick() {
-  const logs = await fetchLogs(appInfoStore.getState().ID);
+  const logs = await fetchLogs(Number(getAppIdFromWindowLocation()));
 
   const link = document.createElement("a");
   link.download = "logs.txt";

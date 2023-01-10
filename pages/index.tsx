@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { useQuery } from "react-query";
 import create from "zustand";
 import { immer } from "zustand/middleware/immer";
+import { UseNanoContext } from "../api/hooks";
 import {
   createApp,
   fetchNanoContext,
@@ -35,15 +36,7 @@ export const globalStore = create<GlobalStoreType>()(
 );
 
 export default function Home() {
-  const { status } = useQuery(["nanoContext"], fetchNanoContext, {
-    onSuccess: (data) => {
-      globalStore.setState((state) => {
-        return data;
-      });
-      console.dir(data);
-    },
-    refetchInterval: 1000 * 10,
-  });
+  const { status } = UseNanoContext();
 
   return (
     <div>
