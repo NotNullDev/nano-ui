@@ -64,7 +64,6 @@ export const appInfoStore = create<AppInfoStoreType>()(
         };
         return state;
       });
-      toast("hhaa");
     };
 
     return {
@@ -167,7 +166,7 @@ export const AppInfoPage = () => {
           </AppButton>
           <AppButton
             className="ml-12 disabled:opacity-40"
-            disabled={buildingAppId === appInfo.ID}
+            disabled={buildingAppId !== 0}
             onClick={async () => {
               await runBuild(appInfo.appName);
               toast("Build started", { icon: "🚀" });
