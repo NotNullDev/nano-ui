@@ -3,7 +3,12 @@ import toast from "react-hot-toast";
 import create from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { globalStore } from ".";
-import { resetToken, showEnv, updateUser } from "../api/nanoContext";
+import {
+  resetGlobalBuildStatus,
+  resetToken,
+  showEnv,
+  updateUser,
+} from "../api/nanoContext";
 import AppButton from "../components/button";
 import { AuthStore } from "./login";
 
@@ -45,6 +50,15 @@ const NanoManagementPage = () => {
           }}
         >
           show env
+        </AppButton>
+        <AppButton
+          className="w-48"
+          onClick={async () => {
+            await resetGlobalBuildStatus();
+            toast.success("global build status reset");
+          }}
+        >
+          reset global build status
         </AppButton>
         <AppButton
           className="h-min"

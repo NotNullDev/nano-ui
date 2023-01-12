@@ -153,6 +153,12 @@ export async function logout() {
   });
 }
 
+export async function resetGlobalBuildStatus() {
+  const res = await nanoFetch("/reset-global-build-status", {});
+  const data = (await res?.text()) as string;
+  return data;
+}
+
 export async function fetchLogs(appId: number, limit: number = 1) {
   const res = await nanoFetch("/logs?appId=" + appId + "&limit=" + limit);
   const data = (await res?.json()) as AppLogsType;
